@@ -10,6 +10,8 @@ variables:
   value: '**/*.sln'
 - name: buildPlatform
   value: 'Any CPU'
+- name: system.debug
+  value: true
 
 steps:
 
