@@ -30,6 +30,8 @@ steps:
     workingDirectory: $(PROJECT_PATH)
     arguments: '--configuration $(buildConfiguration)' 
   displayName: '[ dotnetTask ] Build application'
+  env:
+    CONNECTIONSTRINGS__DATABASE: $(CONNECTIONSTRINGS__DATABASE)
 
 - task: DotNetCoreCLI@2
   inputs:
