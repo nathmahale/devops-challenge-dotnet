@@ -1,0 +1,26 @@
+version: "3.8"
+services:
+    web:
+        build:
+          context: .
+          dockerfile: ./Dockerfile
+        ports:
+            - "0.0.0.0:8000:5000"
+        depends_on:
+            - db
+        # env_file: 
+        # - appconf.env
+        # networks:
+        #   my-network:
+        #     external: true
+    db:
+        image: "mcr.microsoft.com/mssql/server"
+        env_file: 
+        - dbconf.env
+        ports:
+            - "1433:1433"
+
+networks:
+  default:
+    external:
+      name: my-network
