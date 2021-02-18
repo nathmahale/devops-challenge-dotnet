@@ -37,3 +37,11 @@ steps:
     arguments: '--configuration $(buildConfiguration)'
   displayName: '[ dotnetTask ] Test application'
   
+- task: Docker@2
+  inputs:
+    containerRegistry: 'dockerHubConnection'
+    repository: 'dotnet-mvc-app-repo'
+    command: 'buildAndPush'
+    Dockerfile: '$(PROJECT_PATH)/Dockerfile'
+  displayName: '[ dockerTask ] docker build and push'
+    
