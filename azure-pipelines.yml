@@ -31,8 +31,17 @@ steps:
     arguments: '--configuration $(buildConfiguration)' 
   displayName: '[ dotnetTask ] Build application'
   env:
-    CONNECTIONSTRINGS__DATABASE: $(CONNECTIONSTRINGS__DATABASE)
+    CONNECTIONSTRINGS_DATABASE: $(CONNECTIONSTRINGS_DATABASE)
 
+- task: DotNetCoreCLI@2
+  inputs:
+    command: test
+    projects: 'src/DevOpsChallenge.SalesApi/DevOpsChallenge.SalesApi.csproj'
+    workingDirectory: $(PROJECT_PATH)
+    arguments: '--configuration $(buildConfiguration)'
+  displayName: '[ dotnetTask ] Run application'
+  env:
+    CONNECTIONSTRINGS_DATABASE: $(CONNECTIONSTRINGS_DATABASE)
 - task: DotNetCoreCLI@2
   inputs:
     command: test
