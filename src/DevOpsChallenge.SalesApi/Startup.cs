@@ -50,8 +50,7 @@ namespace DevOpsChallenge.SalesApi
             // --------------------------------------------------------------------------------
             // DATABASE
             // --------------------------------------------------------------------------------
-            
-            string connectionString = Environment.GetEnvironmentVariable("CONNECTIONSTRINGS__DATABASE") ?? @"Server=(localdb)\mssqllocaldb;Database=DevOpsChallenge.SalesApi;Trusted_Connection=True;ConnectRetryCount=0";
+            string connectionString = Environment.GetEnvironmentVariable("CONNECTIONSTRINGS_DATABASE") ?? @"Server=(localdb)\mssqllocaldb;Database=DevOpsChallenge.SalesApi;Trusted_Connection=True;ConnectRetryCount=0";
 
             // Database Context Options
             void DbContextOptionsBuilder(DbContextOptionsBuilder builder) =>
