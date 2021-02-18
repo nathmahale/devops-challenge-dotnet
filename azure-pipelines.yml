@@ -12,6 +12,8 @@ variables:
   value: 'Any CPU'
 - name: system.debug
   value: true
+- name: dockerPublicRepo
+  value: 'dmfpython/dotnet-mvc-app-repo'
 
 steps:
 
@@ -36,12 +38,31 @@ steps:
     workingDirectory: $(PROJECT_PATH)
     arguments: '--configuration $(buildConfiguration)'
   displayName: '[ dotnetTask ] Test application'
-  
+
 - task: Docker@2
   inputs:
     containerRegistry: 'dockerHubConnection'
-    repository: 'dotnet-mvc-app-repo'
-    command: 'buildAndPush'
+    command: 'login'
+  displayName: '[ dockerTask ] docker login'
+
+- task: Docker@2
+  inputs:
+    containerRegistry: 'dockerHubConnection'
+    repository: $(dockerPublicRepo)
+    command: 'build'
     Dockerfile: '$(PROJECT_PATH)/Dockerfile'
-  displayName: '[ dockerTask ] docker build and push'
+  displayName: '[ dockerTask ] docker build'
+
     
+- task: Docker@2
+  inputs:
+    containerRegistry: 'dockerHubConnection'
+    repository: $(dockerPublicRepo)
+    command: 'push'
+  displayName: '[ dockerTask ] docker push'
+
+- task: Docker@2
+  inputs:
+    containerRegistry: 'dockerHubConnection'
+    command: 'logout'
+  displayName: '[ dockerTask ] docker logout'
