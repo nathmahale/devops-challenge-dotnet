@@ -26,7 +26,7 @@ steps:
 - task: DotNetCoreCLI@2
   inputs:
     command: 'build'
-    projects: '**/*.csproj'
+    projects: 'src/DevOpsChallenge.SalesApi/DevOpsChallenge.SalesApi.csproj'
     workingDirectory: $(PROJECT_PATH)
     arguments: '--configuration $(buildConfiguration)' 
   displayName: '[ dotnetTask ] Build application'
@@ -34,10 +34,18 @@ steps:
 - task: DotNetCoreCLI@2
   inputs:
     command: test
-    projects: '**/*tests/*.csproj'
+    projects: 'tests/DevOpsChallenge.SalesApi.Business.UnitTests/DevOpsChallenge.SalesApi.Business.UnitTests.csproj'
     workingDirectory: $(PROJECT_PATH)
     arguments: '--configuration $(buildConfiguration)'
-  displayName: '[ dotnetTask ] Test application'
+  displayName: '[ dotnetTask ] Run unit tests on application'
+
+- task: DotNetCoreCLI@2
+  inputs:
+    command: test
+    projects: 'tests/DevOpsChallenge.SalesApi.IntegrationTests/DevOpsChallenge.SalesApi.IntegrationTests.csproj'
+    workingDirectory: $(PROJECT_PATH)
+    arguments: '--configuration $(buildConfiguration)'
+  displayName: '[ dotnetTask ] Run Integration tests on application'
 
 - task: Docker@2
   inputs:
