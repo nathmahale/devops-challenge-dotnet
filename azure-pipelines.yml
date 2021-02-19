@@ -43,8 +43,8 @@ stages:
     - task: DotNetCoreCLI@2
       inputs:
         command: custom
-        # custom: ef
-        arguments: 'ef database update'
+        custom: dotnet-ef
+        arguments: 'database update'
 #         projects: 'src/DevOpsChallenge.SalesApi.Database/DevOpsChallenge.SalesApi.Database.csproj'
         workingDirectory: $(PROJECT_PATH)/src/DevOpsChallenge.SalesApi.Database
       displayName: '[ dotnetTask ] Database Update'
