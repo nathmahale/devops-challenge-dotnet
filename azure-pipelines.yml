@@ -45,7 +45,8 @@ stages:
         command: custom
         custom: ef
         arguments: 'database update'
-        projects: 'src/DevOpsChallenge.SalesApi.Database/DevOpsChallenge.SalesApi.Database.csproj'
+#         projects: 'src/DevOpsChallenge.SalesApi.Database/DevOpsChallenge.SalesApi.Database.csproj'
+        workingDirectory: $(PROJECT_PATH)/src/DevOpsChallenge.SalesApi.Database
       displayName: '[ dotnetTask ] Build application'
       env:
         CONNECTIONSTRINGS__DATABASE: $(CONNECTIONSTRINGS__DATABASE)
