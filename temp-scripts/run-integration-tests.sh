@@ -16,7 +16,7 @@ dotnet $PROJECT_PATH/out/DevOpsChallenge.SalesApi.dll &
 APP_RUN_PROCESS_ID=$!
 
 echo $APP_RUN_PROCESS_ID
-dotnet test --verbosity minimal --no-build $PROJECT_PATH/tests/DevOpsChallenge.SalesApi.IntegrationTests
+dotnet test --verbosity minimal $PROJECT_PATH/tests/DevOpsChallenge.SalesApi.IntegrationTests
 
 if [ $? -eq 0 ];
     then
