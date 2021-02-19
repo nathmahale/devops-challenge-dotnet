@@ -1,0 +1,6 @@
+SELECT TOP (1000) [Id]
+      ,[TransactionId]
+      ,[Date]
+      ,[Amount]
+      ,[Notes]
+  FROM [developmentdb].[dbo].[Sale]

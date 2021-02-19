@@ -58,22 +58,6 @@ x64/
 *.log
 *.scc
 
-# OS generated files #
-.DS_Store*
-Icon?
-
-# Guidance Automation Toolkit
-*.gpState
-
-# ReSharper is a .NET coding add-in
-_ReSharper*/
-*.[Rr]e[Ss]harper
-
-# TeamCity is a build add-in
-_TeamCity*
-
-# DotCover is a Code Coverage Tool
-*.dotCover
 
 # NCrunch
 *.ncrunch*
@@ -134,13 +118,6 @@ tempbin/
 **/App_Data/*.mdf
 **/App_Data/*.ldf
 **/App_Data/*.sdf
-
-
-#LightSwitch generated files
-GeneratedArtifacts/
-_Pvt_Extensions/
-ModelManifest.xml
-
 
 # Visual Studio Code
 .vscode/
