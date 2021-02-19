@@ -32,7 +32,7 @@ stages:
         command: 'build'
         projects: 'src/DevOpsChallenge.SalesApi/DevOpsChallenge.SalesApi.csproj'
         workingDirectory: $(Build.SourcesDirectory)/
-        arguments: '--configuration $(buildConfiguration)' 
+        arguments: '--configuration $(buildConfiguration) --verbosity minimal' 
       displayName: '[ dotnetTask ] Build application'
       env:
         CONNECTIONSTRINGS__DATABASE: $(CONNECTIONSTRINGS__DATABASE)
@@ -62,9 +62,8 @@ stages:
     - task: DotNetCoreCLI@2
       inputs:
         command: test
-        projects: 'tests/DevOpsChallenge.SalesApi.Business.UnitTests/DevOpsChallenge.SalesApi.Business.UnitTests.csproj'
-        workingDirectory: $(Build.SourcesDirectory)
-        arguments: '--configuration $(buildConfiguration) --no-build'
+        projects: '$(Build.SourcesDirectory)/tests/DevOpsChallenge.SalesApi.Business.UnitTests/DevOpsChallenge.SalesApi.Business.UnitTests.csproj'
+        arguments: '--verbosity minimal --no-build'
       displayName: '[ dotnetTask ] Run unit tests on application'
 
     - task: Bash@3
