@@ -74,6 +74,8 @@ stages:
       displayName: '[ bashTask ] Run Integration tests on application - WIP'
       env:
         BUILD_DIR: $(Build.SourcesDirectory)
+        CONNECTIONSTRINGS__DATABASE: $(CONNECTIONSTRINGS__DATABASE)
+
 
 - stage: DockerizeStage
   displayName: 'Containerize App'
