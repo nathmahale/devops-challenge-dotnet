@@ -21,7 +21,6 @@ stages:
   jobs:
   - job: BuildAppJob
     steps:
-    - checkout: none
     - task: DotNetCoreCLI@2
       inputs:
         command: 'restore'
@@ -50,6 +49,7 @@ stages:
       displayName: '[ dotnetTask ] Build application'
       env:
         CONNECTIONSTRINGS__DATABASE: $(CONNECTIONSTRINGS__DATABASE)
+        DOTNET_ROOT: $(DOTNET_ROOT)
 
 - stage: RunAppStage
   displayName: 'Run application stage'
