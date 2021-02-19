@@ -1,0 +1,87 @@
+trigger:
+- develop
+
+pool:
+  name: 'Default'
+
+variables:
+- group: application-var-group
+- name: solution
+  value: '**/*.sln'
+- name: buildPlatform
+  value: 'Any CPU'
+- name: system.debug
+  value: true
+- name: dockerPublicRepo
+  value: 'dmfpython/dotnet-mvc-app-repo'
+
+steps:
+
+- task: DotNetCoreCLI@2
+  inputs:
+    command: 'restore'
+    workingDirectory: $(PROJECT_PATH)
+  displayName: '[ dotnetTask ] Run dotnet restore'
+
+- task: DotNetCoreCLI@2
+  inputs:
+    command: 'build'
+    projects: 'src/DevOpsChallenge.SalesApi/DevOpsChallenge.SalesApi.csproj'
+    workingDirectory: $(PROJECT_PATH)
+    arguments: '--configuration $(buildConfiguration)' 
+  displayName: '[ dotnetTask ] Build application'
+  env:
+    CONNECTIONSTRINGS__DATABASE: $(CONNECTIONSTRINGS__DATABASE)
+
+- task: DotNetCoreCLI@2
+  inputs:
+    command: test
+    projects: 'src/DevOpsChallenge.SalesApi/DevOpsChallenge.SalesApi.csproj'
+    workingDirectory: $(PROJECT_PATH)
+    arguments: '--configuration $(buildConfiguration)'
+  displayName: '[ dotnetTask ] Run application'
+  env:
+    CONNECTIONSTRINGS__DATABASE: $(CONNECTIONSTRINGS__DATABASE)
+- task: DotNetCoreCLI@2
+  inputs:
+    command: test
+    projects: 'tests/DevOpsChallenge.SalesApi.Business.UnitTests/DevOpsChallenge.SalesApi.Business.UnitTests.csproj'
+    workingDirectory: $(PROJECT_PATH)
+    arguments: '--configuration $(buildConfiguration)'
+  displayName: '[ dotnetTask ] Run unit tests on application'
+
+- task: DotNetCoreCLI@2
+  inputs:
+    command: test
+    projects: 'tests/DevOpsChallenge.SalesApi.IntegrationTests/DevOpsChallenge.SalesApi.IntegrationTests.csproj'
+    workingDirectory: $(PROJECT_PATH)
+    arguments: '--configuration $(buildConfiguration)'
+  displayName: '[ dotnetTask ] Run Integration tests on application'
+
+- task: Docker@2
+  inputs:
+    containerRegistry: 'dockerHubConnection'
+    command: 'login'
+  displayName: '[ dockerTask ] docker login'
+
+- task: Docker@2
+  inputs:
+    containerRegistry: 'dockerHubConnection'
+    repository: $(dockerPublicRepo)
+    command: 'build'
+    Dockerfile: '$(PROJECT_PATH)/Dockerfile'
+  displayName: '[ dockerTask ] docker build'
+
+    
+- task: Docker@2
+  inputs:
+    containerRegistry: 'dockerHubConnection'
+    repository: $(dockerPublicRepo)
+    command: 'push'
+  displayName: '[ dockerTask ] docker push'
+
+- task: Docker@2
+  inputs:
+    containerRegistry: 'dockerHubConnection'
+    command: 'logout'
+  displayName: '[ dockerTask ] docker logout'

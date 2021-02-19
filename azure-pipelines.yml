@@ -15,73 +15,104 @@ variables:
 - name: dockerPublicRepo
   value: 'dmfpython/dotnet-mvc-app-repo'
 
-steps:
-
-- task: DotNetCoreCLI@2
-  inputs:
-    command: 'restore'
-    workingDirectory: $(PROJECT_PATH)
-  displayName: '[ dotnetTask ] Run dotnet restore'
-
-- task: DotNetCoreCLI@2
-  inputs:
-    command: 'build'
-    projects: 'src/DevOpsChallenge.SalesApi/DevOpsChallenge.SalesApi.csproj'
-    workingDirectory: $(PROJECT_PATH)
-    arguments: '--configuration $(buildConfiguration)' 
-  displayName: '[ dotnetTask ] Build application'
-  env:
-    CONNECTIONSTRINGS_DATABASE: $(CONNECTIONSTRINGS_DATABASE)
-
-- task: DotNetCoreCLI@2
-  inputs:
-    command: test
-    projects: 'src/DevOpsChallenge.SalesApi/DevOpsChallenge.SalesApi.csproj'
-    workingDirectory: $(PROJECT_PATH)
-    arguments: '--configuration $(buildConfiguration)'
-  displayName: '[ dotnetTask ] Run application'
-  env:
-    CONNECTIONSTRINGS_DATABASE: $(CONNECTIONSTRINGS_DATABASE)
-- task: DotNetCoreCLI@2
-  inputs:
-    command: test
-    projects: 'tests/DevOpsChallenge.SalesApi.Business.UnitTests/DevOpsChallenge.SalesApi.Business.UnitTests.csproj'
-    workingDirectory: $(PROJECT_PATH)
-    arguments: '--configuration $(buildConfiguration)'
-  displayName: '[ dotnetTask ] Run unit tests on application'
-
-- task: DotNetCoreCLI@2
-  inputs:
-    command: test
-    projects: 'tests/DevOpsChallenge.SalesApi.IntegrationTests/DevOpsChallenge.SalesApi.IntegrationTests.csproj'
-    workingDirectory: $(PROJECT_PATH)
-    arguments: '--configuration $(buildConfiguration)'
-  displayName: '[ dotnetTask ] Run Integration tests on application'
-
-- task: Docker@2
-  inputs:
-    containerRegistry: 'dockerHubConnection'
-    command: 'login'
-  displayName: '[ dockerTask ] docker login'
-
-- task: Docker@2
-  inputs:
-    containerRegistry: 'dockerHubConnection'
-    repository: $(dockerPublicRepo)
-    command: 'build'
-    Dockerfile: '$(PROJECT_PATH)/Dockerfile'
-  displayName: '[ dockerTask ] docker build'
-
+stages:
+- stage: BuildAppStage
+  displayName: 'Build application stage'
+  jobs:
+  - job: BuildAppJob
+    steps:
+    - task: DotNetCoreCLI@2
+      inputs:
+        command: 'restore'
+        workingDirectory: $(PROJECT_PATH)
+      displayName: '[ dotnetTask ] Run dotnet restore'
     
-- task: Docker@2
-  inputs:
-    containerRegistry: 'dockerHubConnection'
-    repository: $(dockerPublicRepo)
-    command: 'push'
-  displayName: '[ dockerTask ] docker push'
+    - task: DotNetCoreCLI@2
+      inputs:
+        command: 'build'
+        projects: 'src/DevOpsChallenge.SalesApi/DevOpsChallenge.SalesApi.csproj'
+        workingDirectory: $(PROJECT_PATH)
+        arguments: '--configuration $(buildConfiguration)' 
+      displayName: '[ dotnetTask ] Build application'
+      env:
+        CONNECTIONSTRINGS__DATABASE: $(CONNECTIONSTRINGS__DATABASE)
 
-- task: Docker@2
-  inputs:
-    containerRegistry: 'dockerHubConnection'
-    command: 'logout'
-  displayName: '[ dockerTask ] docker logout'
+  - job: UpdateDBJob
+    steps:
+    - task: DotNetCoreCLI@2
+      inputs:
+        command: ef
+        arguments: 'database update'
+        projects: 'src/DevOpsChallenge.SalesApi.Database/DevOpsChallenge.SalesApi.Database.csproj'
+      displayName: '[ dotnetTask ] Build application'
+      env:
+        CONNECTIONSTRINGS__DATABASE: $(CONNECTIONSTRINGS__DATABASE)
+
+- stage: RunAppStage
+  displayName: 'Run application stage'
+  jobs:
+  - job: RunAppJob
+    steps:
+    - task: DotNetCoreCLI@2
+      inputs:
+        command: run
+        projects: 'src/DevOpsChallenge.SalesApi/DevOpsChallenge.SalesApi.csproj'
+        workingDirectory: $(PROJECT_PATH)
+        arguments: '--configuration $(buildConfiguration)'
+      displayName: '[ dotnetTask ] Run application'
+      env:
+        CONNECTIONSTRINGS__DATABASE: $(CONNECTIONSTRINGS__DATABASE)
+        
+- stage: TestAppStage
+  displayName: 'Test application stage'
+  jobs:
+  - job: TestAppJob
+    steps:
+    - task: DotNetCoreCLI@2
+      inputs:
+        command: test
+        projects: 'tests/DevOpsChallenge.SalesApi.Business.UnitTests/DevOpsChallenge.SalesApi.Business.UnitTests.csproj'
+        workingDirectory: $(PROJECT_PATH)
+        arguments: '--configuration $(buildConfiguration)'
+      displayName: '[ dotnetTask ] Run unit tests on application'
+
+    - task: DotNetCoreCLI@2
+      inputs:
+        command: test
+        projects: 'tests/DevOpsChallenge.SalesApi.IntegrationTests/DevOpsChallenge.SalesApi.IntegrationTests.csproj'
+        workingDirectory: $(PROJECT_PATH)
+        arguments: '--configuration $(buildConfiguration)'
+      displayName: '[ dotnetTask ] Run Integration tests on application'
+
+- stage: DockerizeStage
+  displayName: 'Containerize App'
+  jobs:
+  - job: DockerJob
+    steps:
+    - task: Docker@2
+      inputs:
+        containerRegistry: 'dockerHubConnection'
+        command: 'login'
+      displayName: '[ dockerTask ] docker login'
+
+    - task: Docker@2
+      inputs:
+        containerRegistry: 'dockerHubConnection'
+        repository: $(dockerPublicRepo)
+        command: 'build'
+        Dockerfile: '$(PROJECT_PATH)/Dockerfile'
+      displayName: '[ dockerTask ] docker build'
+
+        
+    - task: Docker@2
+      inputs:
+        containerRegistry: 'dockerHubConnection'
+        repository: $(dockerPublicRepo)
+        command: 'push'
+      displayName: '[ dockerTask ] docker push'
+
+    - task: Docker@2
+      inputs:
+        containerRegistry: 'dockerHubConnection'
+        command: 'logout'
+      displayName: '[ dockerTask ] docker logout'
