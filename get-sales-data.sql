@@ -1,4 +1,4 @@
-SELECT TOP (1000) [Id]
+SELECT TOP (500) [Id]
       ,[TransactionId]
       ,[Date]
       ,[Amount]

@@ -21,28 +21,21 @@ stages:
   jobs:
   - job: BuildAppJob
     steps:
-    - task: Bash@3
+    - task: DotNetCoreCLI@2
       inputs:
-        targetType: inline
-        script: |
-          echo $(Build.SourcesDirectory)
-      displayName: '[ test ] test'
-
-    # - task: DotNetCoreCLI@2
-    #   inputs:
-    #     command: 'restore'
-    #     workingDirectory: $(PROJECT_PATH)
-    #   displayName: '[ dotnetTask ] Run dotnet restore'
+        command: 'restore'
+        workingDirectory: $(Build.SourcesDirectory)
+      displayName: '[ dotnetTask ] Run dotnet restore'
     
-    # - task: DotNetCoreCLI@2
-    #   inputs:
-    #     command: 'build'
-    #     projects: 'src/DevOpsChallenge.SalesApi/DevOpsChallenge.SalesApi.csproj'
-    #     workingDirectory: $(PROJECT_PATH)
-    #     arguments: '--configuration $(buildConfiguration)' 
-    #   displayName: '[ dotnetTask ] Build application'
-    #   env:
-    #     CONNECTIONSTRINGS__DATABASE: $(CONNECTIONSTRINGS__DATABASE)
+    - task: DotNetCoreCLI@2
+      inputs:
+        command: 'build'
+        projects: 'src/DevOpsChallenge.SalesApi/DevOpsChallenge.SalesApi.csproj'
+        workingDirectory: $(Build.SourcesDirectory)/
+        arguments: '--configuration $(buildConfiguration)' 
+      displayName: '[ dotnetTask ] Build application'
+      env:
+        CONNECTIONSTRINGS__DATABASE: $(CONNECTIONSTRINGS__DATABASE)
 
 #   - job: UpdateDBJob
 #     steps:
@@ -53,65 +46,64 @@ stages:
 #         custom: dotnet-ef
 #         arguments: 'database update --no-build'
 # #         projects: 'src/DevOpsChallenge.SalesApi.Database/DevOpsChallenge.SalesApi.Database.csproj'
-#         workingDirectory: $(PROJECT_PATH)/src/DevOpsChallenge.SalesApi.Database
+#         workingDirectory: $(Build.SourcesDirectory)/src/DevOpsChallenge.SalesApi.Database
 #       displayName: '[ dotnetTask ] Database Update'
 #       env:
 #         CONNECTIONSTRINGS__DATABASE: $(CONNECTIONSTRINGS__DATABASE)
 #         DOTNET_ROOT: $(DOTNET_ROOT)
 
         
-# - stage: TestAppStage
-#   displayName: 'Test application stage'
-#   jobs:
-#   - job: TestAppJob
-#     steps:
-#     - checkout: none
-#     - task: DotNetCoreCLI@2
-#       inputs:
-#         command: test
-#         projects: 'tests/DevOpsChallenge.SalesApi.Business.UnitTests/DevOpsChallenge.SalesApi.Business.UnitTests.csproj'
-#         workingDirectory: $(PROJECT_PATH)
-#         arguments: '--configuration $(buildConfiguration) --no-build'
-#       displayName: '[ dotnetTask ] Run unit tests on application'
+- stage: TestAppStage
+  displayName: 'Test application stage'
+  jobs:
+  - job: TestAppJob
+    steps:
+    - checkout: none
+    - task: DotNetCoreCLI@2
+      inputs:
+        command: test
+        projects: 'tests/DevOpsChallenge.SalesApi.Business.UnitTests/DevOpsChallenge.SalesApi.Business.UnitTests.csproj'
+        workingDirectory: $(Build.SourcesDirectory)
+        arguments: '--configuration $(buildConfiguration) --no-build'
+      displayName: '[ dotnetTask ] Run unit tests on application'
 
-#     - task: DotNetCoreCLI@2
-#       inputs:
-#         command: test
-#         projects: 'tests/DevOpsChallenge.SalesApi.IntegrationTests/DevOpsChallenge.SalesApi.IntegrationTests.csproj'
-#         workingDirectory: $(PROJECT_PATH)
-#         arguments: '--configuration $(buildConfiguration)'
-#       displayName: '[ dotnetTask ] Run Integration tests on application'
+    - task: Bash@3
+      inputs:
+        workingDirectory: $(Build.SourcesDirectory)
+        targetType: filePath
+        filePath: $(Build.SourcesDirectory)/temp-scripts/
+      displayName: '[ bashTask ] Run Integration tests on application - WIP'
 
-# - stage: DockerizeStage
-#   displayName: 'Containerize App'
-#   jobs:
-#   - job: DockerJob
-#     steps:
-#     - checkout: none
-#     - task: Docker@2
-#       inputs:
-#         containerRegistry: 'dockerHubConnection'
-#         command: 'login'
-#       displayName: '[ dockerTask ] docker login'
+- stage: DockerizeStage
+  displayName: 'Containerize App'
+  jobs:
+  - job: DockerJob
+    steps:
+    - checkout: none
+    - task: Docker@2
+      inputs:
+        containerRegistry: 'dockerHubConnection'
+        command: 'login'
+      displayName: '[ dockerTask ] docker login'
 
-#     - task: Docker@2
-#       inputs:
-#         containerRegistry: 'dockerHubConnection'
-#         repository: $(dockerPublicRepo)
-#         command: 'build'
-#         Dockerfile: '$(PROJECT_PATH)/Dockerfile'
-#       displayName: '[ dockerTask ] docker build'
+    - task: Docker@2
+      inputs:
+        containerRegistry: 'dockerHubConnection'
+        repository: $(dockerPublicRepo)
+        command: 'build'
+        Dockerfile: '$(Build.SourcesDirectory)/Dockerfile'
+      displayName: '[ dockerTask ] docker build'
 
         
-#     - task: Docker@2
-#       inputs:
-#         containerRegistry: 'dockerHubConnection'
-#         repository: $(dockerPublicRepo)
-#         command: 'push'
-#       displayName: '[ dockerTask ] docker push'
+    - task: Docker@2
+      inputs:
+        containerRegistry: 'dockerHubConnection'
+        repository: $(dockerPublicRepo)
+        command: 'push'
+      displayName: '[ dockerTask ] docker push'
 
-#     - task: Docker@2
-#       inputs:
-#         containerRegistry: 'dockerHubConnection'
-#         command: 'logout'
-#       displayName: '[ dockerTask ] docker logout'
+    - task: Docker@2
+      inputs:
+        containerRegistry: 'dockerHubConnection'
+        command: 'logout'
+      displayName: '[ dockerTask ] docker logout'
