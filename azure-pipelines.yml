@@ -70,8 +70,10 @@ stages:
       inputs:
         workingDirectory: $(Build.SourcesDirectory)
         targetType: filePath
-        filePath: $(Build.SourcesDirectory)/temp-scripts/
+        filePath: $(Build.SourcesDirectory)/temp-scripts/run-integration-tests.sh
       displayName: '[ bashTask ] Run Integration tests on application - WIP'
+      env:
+        BUILD_DIR: $(Build.SourcesDirectory)
 
 - stage: DockerizeStage
   displayName: 'Containerize App'
