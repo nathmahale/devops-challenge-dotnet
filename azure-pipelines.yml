@@ -21,6 +21,7 @@ stages:
   jobs:
   - job: BuildAppJob
     steps:
+    - checkout: none
     - task: DotNetCoreCLI@2
       inputs:
         command: 'restore'
@@ -39,9 +40,11 @@ stages:
 
   - job: UpdateDBJob
     steps:
+    - checkout: none
     - task: DotNetCoreCLI@2
       inputs:
-        command: ef
+        command: custom
+        custom: ef
         arguments: 'database update'
         projects: 'src/DevOpsChallenge.SalesApi.Database/DevOpsChallenge.SalesApi.Database.csproj'
       displayName: '[ dotnetTask ] Build application'
@@ -53,6 +56,7 @@ stages:
   jobs:
   - job: RunAppJob
     steps:
+    - checkout: none
     - task: DotNetCoreCLI@2
       inputs:
         command: run
@@ -68,6 +72,7 @@ stages:
   jobs:
   - job: TestAppJob
     steps:
+    - checkout: none
     - task: DotNetCoreCLI@2
       inputs:
         command: test
@@ -89,6 +94,7 @@ stages:
   jobs:
   - job: DockerJob
     steps:
+    - checkout: none
     - task: Docker@2
       inputs:
         containerRegistry: 'dockerHubConnection'
