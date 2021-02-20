@@ -85,7 +85,7 @@ stages:
     - task: DotNetCoreCLI@2
       inputs:
         command: publish
-        arguments: '--configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory) --no-build --no-restore --verbosity $(dotNetCommandVerbosityLevel)'
+        arguments: '--configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)/ --no-build --no-restore --verbosity $(dotNetCommandVerbosityLevel)'
         projects: 'src/DevOpsChallenge.SalesApi/DevOpsChallenge.SalesApi.csproj'
       displayName: '[ dotnetTask ] Publish application'
       env:
@@ -105,9 +105,17 @@ stages:
       inputs:
         CleanTargetFolder: false
         SourceFolder: $(Build.SourcesDirectory)/
-        TargetFolder: $(Build.ArtifactStagingDirectory)/
+        TargetFolder: $(Build.SourcesDirectory)/out
         Contents: 'Dockerfile'
       displayName: '[ copyFileTask ] Copy Dockerfile to StagingDirectory'
+
+    - task: PublishBuildArtifacts@1
+      inputs:
+          PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+          artifactName: 'drop' # Optional
+          artifactType: 'filepath' 
+          TargetPath: $(Pipeline.Workspace)/
+      displayName: '[ publishArtifactPipelineTask ] Copy contents to Pipeline.Workspace'
 
 - stage: DockerizeStage
   displayName: 'Containerize App'
@@ -137,7 +145,7 @@ stages:
         containerRegistry: 'dockerHubConnection'
         repository: $(dockerPublicRepo)
         command: 'build'
-        Dockerfile: '$(Build.ArtifactStagingDirectory)/Dockerfile'
+        Dockerfile: '$(Pipeline.Workspace)/drop/Dockerfile'
       displayName: '[ dockerTask ] docker build'
 
         
