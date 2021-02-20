@@ -9,7 +9,7 @@ variables:
 - name: buildPlatform
   value: 'Any CPU'
 - name: system.debug
-  value: true
+  value: false
 - name: dockerPublicRepo
   value: 'dmfpython/dotnet-mvc-app-repo'
 - name: dotNetCommandVerbosityLevel
