@@ -94,7 +94,7 @@ stages:
     - task: DotNetCoreCLI@2
       inputs:
         command: pack
-        arguments: '--configuration $(buildConfiguration) --no-build --no-restore --verbosity $(dotNetCommandVerbosityLevel)'
+        arguments: '--configuration $(buildConfiguration) --no-build --verbosity $(dotNetCommandVerbosityLevel)'
         outputDir: '$(Build.ArtifactStagingDirectory)/ReleasePackages'
         projects: 'src/DevOpsChallenge.SalesApi/DevOpsChallenge.SalesApi.csproj'
       displayName: '[ dotnetTask ] Package application'
