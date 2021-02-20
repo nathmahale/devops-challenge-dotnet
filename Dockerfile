@@ -14,6 +14,10 @@ FROM mcr.microsoft.com/dotnet/aspnet:5.0
 ## Initial folder creation, copying contents
 RUN mkdir -p /app/ReleaseFolder/
 RUN chmod 755 /app/ReleaseFolder/
+
+## Install unzip utility
+RUN apt install -y unzip
+
 COPY . /app
 
 WORKDIR /app
@@ -23,6 +27,8 @@ EXPOSE 5000/tcp
 
 
 # COPY --from=build-env /app/out .
+
+## Unzip .zip [ output from dotnet publish task] /app/ReleaseFolder/ folder
 RUN unzip /app/DevOpsChallenge.SalesApi.zip -d /app/ReleaseFolder/
 
 ENTRYPOINT ["dotnet", "/app/ReleaseFolder/DevOpsChallenge.SalesApi.dll"]
