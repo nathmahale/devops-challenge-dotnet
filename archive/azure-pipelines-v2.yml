@@ -76,7 +76,7 @@ stages:
         BUILD_DIR: $(Build.SourcesDirectory)
         CONNECTIONSTRINGS__DATABASE: $(CONNECTIONSTRINGS__DATABASE)
 
-- stage: PublishPackageDockerizeAppStage
+- stage: PublishAndPackageAppStage
   displayName: 'Publish Application'
   jobs:
   - job: PublishAndPackageAppJob
@@ -101,29 +101,53 @@ stages:
       env:
         CONNECTIONSTRINGS__DATABASE: $(CONNECTIONSTRINGS__DATABASE)
     
+    - task: CopyFiles@2
+      inputs:
+        CleanTargetFolder: false
+        SourceFolder: $(Build.SourcesDirectory)/
+        TargetFolder: $(Build.SourcesDirectory)/out
+        Contents: 'Dockerfile'
+      displayName: '[ copyFileTask ] Copy Dockerfile to StagingDirectory'
+
+    - task: PublishBuildArtifacts@1
+      inputs:
+          PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+          artifactName: 'drop' # Optional
+          artifactType: 'filepath' 
+          TargetPath: $(Pipeline.Workspace)/
+      displayName: '[ publishArtifactPipelineTask ] Copy contents to Pipeline.Workspace'
+
+- stage: DockerizeStage
+  displayName: 'Containerize App'
+  jobs:
+  - job: DockerJob
+    steps:
+    - checkout: none
     - task: Docker@2
       inputs:
         containerRegistry: 'dockerHubConnection'
         command: 'login'
       displayName: '[ dockerTask ] docker login'
 
-    - task: Bash@3
-      inputs:
-        targetType: inline
-        script: cp $BUILD_DIR/Dockerfile $BUILD_ARTIFACTSTAGINGDIRECTORY
-      env:
-          BUILD_DIR: $(Build.SourcesDirectory)
-          BUILD_ARTIFACTSTAGINGDIRECTORY: $(Build.ArtifactStagingDirectory)
-      displayName: '[ bashTask ] Copy Dockerfile to StagingDirectory'
+    # - task: Bash@3
+    #   inputs:
+    #     targetType: inline
+    #     script: |
+    #       cp $BUILD_DIR/Dockerfile $BUILD_ARTIFACTSTAGINGDIRECTORY
+    #   env:
+    #       BUILD_DIR: $(Build.SourcesDirectory)
+    #       BUILD_ARTIFACTSTAGINGDIRECTORY: $(Build.ArtifactStagingDirectory)
+
+    #   displayName: '[ bashTask ] Copy Dockerfile to StagingDirectory'
 
     - task: Docker@2
       inputs:
         containerRegistry: 'dockerHubConnection'
         repository: $(dockerPublicRepo)
         command: 'build'
-        Dockerfile: '$(Build.ArtifactStagingDirectory)/Dockerfile'
-        arguments: '--build-arg BUILD_ARTIFACTSTAGINGDIRECTORY=$(Build.ArtifactStagingDirectory)'
+        Dockerfile: '$(Pipeline.Workspace)/drop/Dockerfile'
       displayName: '[ dockerTask ] docker build'
+
         
     - task: Docker@2
       inputs:

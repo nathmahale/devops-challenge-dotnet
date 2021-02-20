@@ -9,6 +9,8 @@
 
 # RUN ["dotnet", "publish", "-c", "Release", "-o", "out"]
 
+ARG BUILD_ARTIFACTSTAGINGDIRECTORY
+
 FROM mcr.microsoft.com/dotnet/aspnet:5.0
 
 ## Initial folder creation, copying contents
@@ -20,9 +22,10 @@ RUN apt-get update
 ## Install unzip utility
 RUN apt install -y unzip
 
-COPY . /app
-
 WORKDIR /app
+
+COPY $BUILD_ARTIFACTSTAGINGDIRECTORY /app
+
 
 ## Expose port
 EXPOSE 5000/tcp
