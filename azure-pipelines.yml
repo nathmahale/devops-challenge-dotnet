@@ -77,7 +77,7 @@ stages:
         CONNECTIONSTRINGS__DATABASE: $(CONNECTIONSTRINGS__DATABASE)
 
 - stage: PublishPackageDockerizeAppStage
-  displayName: 'Publish Application'
+  displayName: 'Publish,Package and Containerize Application'
   jobs:
   - job: PublishAndPackageAppJob
     steps:
