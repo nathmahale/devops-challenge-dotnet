@@ -100,6 +100,14 @@ stages:
       displayName: '[ dotnetTask ] Package application'
       env:
         CONNECTIONSTRINGS__DATABASE: $(CONNECTIONSTRINGS__DATABASE)
+    
+    - task: CopyFiles@2
+      inputs:
+        CleanTargetFolder: false
+        SourceFolder: $(Build.SourcesDirectory)/Dockerfile
+        TargetFolder: $(Build.ArtifactStagingDirectory)/
+        Contents: 'Dockerfile'
+      displayName: '[ copyFileTask ] Copy Dockerfile to StagingDirectory'
 
 - stage: DockerizeStage
   displayName: 'Containerize App'
@@ -113,16 +121,16 @@ stages:
         command: 'login'
       displayName: '[ dockerTask ] docker login'
 
-    - task: Bash@3
-      inputs:
-        targetType: inline
-        script: |
-          cp $BUILD_DIR/Dockerfile $BUILD_ARTIFACTSTAGINGDIRECTORY
-      env:
-          BUILD_DIR: $(Build.SourcesDirectory)
-          BUILD_ARTIFACTSTAGINGDIRECTORY: $(Build.ArtifactStagingDirectory)
+    # - task: Bash@3
+    #   inputs:
+    #     targetType: inline
+    #     script: |
+    #       cp $BUILD_DIR/Dockerfile $BUILD_ARTIFACTSTAGINGDIRECTORY
+    #   env:
+    #       BUILD_DIR: $(Build.SourcesDirectory)
+    #       BUILD_ARTIFACTSTAGINGDIRECTORY: $(Build.ArtifactStagingDirectory)
 
-      displayName: '[ bashTask ] Copy Dockerfile to StagingDirectory'
+    #   displayName: '[ bashTask ] Copy Dockerfile to StagingDirectory'
 
     - task: Docker@2
       inputs:
