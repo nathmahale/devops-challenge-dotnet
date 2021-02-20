@@ -104,7 +104,7 @@ stages:
     - task: CopyFiles@2
       inputs:
         CleanTargetFolder: false
-        SourceFolder: $(Build.SourcesDirectory)/Dockerfile
+        SourceFolder: $(Build.SourcesDirectory)/
         TargetFolder: $(Build.ArtifactStagingDirectory)/
         Contents: 'Dockerfile'
       displayName: '[ copyFileTask ] Copy Dockerfile to StagingDirectory'
