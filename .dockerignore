@@ -12,5 +12,10 @@ logs/
 *.md
 **/*.class
 
-bin\
-obj\
+##Added  custom files
+**/bin
+**/obj
+**/.vscode
+.dotnet
+*.sql
+**/runtimes

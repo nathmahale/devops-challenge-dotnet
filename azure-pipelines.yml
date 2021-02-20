@@ -95,42 +95,53 @@ stages:
       inputs:
         command: pack
         arguments: '--configuration $(buildConfiguration) --no-build --verbosity $(dotNetCommandVerbosityLevel)'
-        outputDir: '$(Build.ArtifactStagingDirectory)/ReleasePackages'
+        outputDir: '$(Build.ArtifactStagingDirectory)/ReleasePackagesNuGetFormat'
         projects: 'src/DevOpsChallenge.SalesApi/DevOpsChallenge.SalesApi.csproj'
       displayName: '[ dotnetTask ] Package application'
       env:
         CONNECTIONSTRINGS__DATABASE: $(CONNECTIONSTRINGS__DATABASE)
 
-# - stage: DockerizeStage
-#   displayName: 'Containerize App'
-#   jobs:
-#   - job: DockerJob
-#     steps:
-#     - checkout: none
-#     - task: Docker@2
-#       inputs:
-#         containerRegistry: 'dockerHubConnection'
-#         command: 'login'
-#       displayName: '[ dockerTask ] docker login'
+- stage: DockerizeStage
+  displayName: 'Containerize App'
+  jobs:
+  - job: DockerJob
+    steps:
+    - checkout: none
+    - task: Docker@2
+      inputs:
+        containerRegistry: 'dockerHubConnection'
+        command: 'login'
+      displayName: '[ dockerTask ] docker login'
 
-#     - task: Docker@2
-#       inputs:
-#         containerRegistry: 'dockerHubConnection'
-#         repository: $(dockerPublicRepo)
-#         command: 'build'
-#         Dockerfile: '$(Build.SourcesDirectory)/Dockerfile'
-#       displayName: '[ dockerTask ] docker build'
+    - task: Bash@3
+      inputs:
+        targetType: inline
+        script: |
+          cp $BUILD_DIR/Dockerfile $BUILD_ARTIFACTSTAGINGDIRECTORY
+      env:
+          BUILD_DIR: $(Build.SourcesDirectory)
+          BUILD_ARTIFACTSTAGINGDIRECTORY: $(Build.ArtifactStagingDirectory)
+
+      displayName: '[ bashTask ] Copy Dockerfile to StagingDirectory'
+
+    - task: Docker@2
+      inputs:
+        containerRegistry: 'dockerHubConnection'
+        repository: $(dockerPublicRepo)
+        command: 'build'
+        Dockerfile: '$(Build.ArtifactStagingDirectory)/Dockerfile'
+      displayName: '[ dockerTask ] docker build'
 
         
-#     - task: Docker@2
-#       inputs:
-#         containerRegistry: 'dockerHubConnection'
-#         repository: $(dockerPublicRepo)
-#         command: 'push'
-#       displayName: '[ dockerTask ] docker push'
+    - task: Docker@2
+      inputs:
+        containerRegistry: 'dockerHubConnection'
+        repository: $(dockerPublicRepo)
+        command: 'push'
+      displayName: '[ dockerTask ] docker push'
 
-#     - task: Docker@2
-#       inputs:
-#         containerRegistry: 'dockerHubConnection'
-#         command: 'logout'
-#       displayName: '[ dockerTask ] docker logout'
+    - task: Docker@2
+      inputs:
+        containerRegistry: 'dockerHubConnection'
+        command: 'logout'
+      displayName: '[ dockerTask ] docker logout'
