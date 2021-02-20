@@ -15,6 +15,8 @@ FROM mcr.microsoft.com/dotnet/aspnet:5.0
 RUN mkdir -p /app/ReleaseFolder/
 RUN chmod 755 /app/ReleaseFolder/
 
+RUN apt-get update
+
 ## Install unzip utility
 RUN apt install -y unzip
 
@@ -24,7 +26,6 @@ WORKDIR /app
 
 ## Expose port
 EXPOSE 5000/tcp
-
 
 # COPY --from=build-env /app/out .
 
