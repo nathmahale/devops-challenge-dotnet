@@ -85,7 +85,7 @@ stages:
     - task: DotNetCoreCLI@2
       inputs:
         command: publish
-        arguments: '--configuration $(buildConfiguration) -o out --no-build --no-restore --verbosity $(dotNetCommandVerbosityLevel)'
+        arguments: '--configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory) --no-build --no-restore --verbosity $(dotNetCommandVerbosityLevel)'
         projects: 'src/DevOpsChallenge.SalesApi/DevOpsChallenge.SalesApi.csproj'
       displayName: '[ dotnetTask ] Publish application'
       env:
@@ -94,7 +94,8 @@ stages:
     - task: DotNetCoreCLI@2
       inputs:
         command: pack
-        arguments: '--configuration $(buildConfiguration) -o out --no-build --no-restore --verbosity $(dotNetCommandVerbosityLevel)'
+        arguments: '--configuration $(buildConfiguration) --no-build --no-restore --verbosity $(dotNetCommandVerbosityLevel)'
+        outputDir: '$(Build.ArtifactStagingDirectory)/ReleasePackages'
         projects: 'src/DevOpsChallenge.SalesApi/DevOpsChallenge.SalesApi.csproj'
       displayName: '[ dotnetTask ] Package application'
       env:
